@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>copi-02 オーディオビジュアライザー</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        canvas { display: block; background: black; }
+    </style>
+</head>
+<body>
+    <script>
+        let mic, fft;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            noFill();
+            mic = new p5.AudioIn();
+            mic.start();
+            fft = new p5.FFT();
+            fft.setInput(mic);
+        }
+
+        function draw() {
+            background(0);
+            let spectrum = fft.analyze();
+            stroke(255); // 白色の描写
+            for (let i = 0; i < spectrum.length; i++) {
+                let x = map(i, 0, spectrum.length, 0, width);
+                let y = map(spectrum[i], 0, 255, height, 0);
+                line(x, height, x, y);
+            }
+            drawLabels();
+        }
+
+        function drawLabels() {
+            textSize(16);
+            fill(255);
+            noStroke();
+            // ここでキリの良い周波数にラベルを付ける
+            text('100Hz', freqToX(100), height - 10);
+            text('1kHz', freqToX(1000), height - 10);
+            text('10kHz', freqToX(10000), height - 10);
+            // 他の周波数も同様に追加
+        }
+
+        function freqToX(freq) {
+            let nyquist = sampleRate() / 2;
+            let index = round(freq / nyquist * spectrum.length);
+            return map(index, 0, spectrum.length, 0, width);
+        }
+    </script>
+</body>
+</html>
