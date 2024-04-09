@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGPT03 Audio Spectrum Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      border: 2px solid white;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    let mic;
+    let fft;
+    let spectrum;
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      background(0);
+
+      // マイクの使用を開始
+      mic = new p5.AudioIn();
+      mic.start();
+
+      // FFTを作成し、マイクの入力を設定
+      fft = new p5.FFT();
+      fft.setInput(mic);
+    }
+
+    function draw() {
+      background(0);
+
+      // スペクトルを取得
+      spectrum = fft.analyze();
+
+      // スペクトルを描画
+      drawSpectrum();
+
+      // 周波数ラベルを描画
+      drawFrequencyLabels();
+    }
+
+    // スペクトルを描画する関数
+    function drawSpectrum() {
+      stroke(255);
+      noFill();
+      beginShape();
+      for (let i = 0; i < spectrum.length; i++) {
+        let x = map(i, 0, spectrum.length, 0, width);
+        let h = -height + map(spectrum[i], 0, 255, height, 0);
+        vertex(x, height);
+        vertex(x, h);
+      }
+      endShape();
+    }
+
+    // 周波数ラベルを描画する関数
+    function drawFrequencyLabels() {
+      let nyquist = sampleRate() / 2;
+      textAlign(CENTER, CENTER);
+      textSize(16);
+      fill(255);
+
+      // キリの良い周波数にラベルを付ける
+      let labels = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+      for (let i = 0; i < labels.length; i++) {
+        let freq = labels[i];
+        let x = map(log(freq), 0, log(nyquist), 0, width);
+        text(freq, x, height - 20);
+      }
+    }
+  </script>
+</body>
+</html>
