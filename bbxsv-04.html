@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeyBladeX Audio Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #222;
+    }
+    canvas {
+      border: 2px solid white;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    let mic;
+    let fft;
+    let sparkles = [];
+    let swirl;
+    let sparkSize = 30;
+
+    function preload() {
+      // 画像をBase64形式にエンコード
+      swirl = createSwirlImage();
+      for (let i = 0; i < 10; i++) {
+        sparkles.push(createSparkleImage());
+      }
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+
+      mic = new p5.AudioIn();
+      mic.start();
+
+      fft = new p5.FFT();
+      fft.setInput(mic);
+    }
+
+    function draw() {
+      background(0);
+
+      let spectrum = fft.analyze();
+      let waveform = fft.waveform();
+
+      let isSpinning = checkSpin(waveform);
+      let isColliding = checkCollision(spectrum);
+
+      if (isSpinning) {
+        image(swirl, width / 2 - swirl.width / 2, height / 2 - swirl.height / 2);
+      }
+
+      if (isColliding) {
+        let x = random(width);
+        let y = random(height);
+        let sparkleIndex = floor(random(sparkles.length));
+        image(sparkles[sparkleIndex], x, y, sparkSize, sparkSize);
+      }
+    }
+
+    function createSwirlImage() {
+      let img = createGraphics(100, 100);
+      img.background(0);
+      img.stroke(255);
+      img.strokeWeight(4);
+      img.noFill();
+      img.ellipse(img.width / 2, img.height / 2, img.width - 10, img.height - 10);
+      return img;
+    }
+
+    function createSparkleImage() {
+      let img = createGraphics(sparkSize, sparkSize);
+      img.background(0, 0);
+      img.stroke(255, 200);
+      img.strokeWeight(2);
+      img.noFill();
+      img.beginShape();
+      img.vertex(0, sparkSize / 2);
+      img.vertex(sparkSize / 2, 0);
+      img.vertex(sparkSize, sparkSize / 2);
+      img.vertex(sparkSize / 2, sparkSize);
+      img.endShape(CLOSE);
+      return img;
+    }
+
+    function checkSpin(waveform) {
+      let spinThreshold = 0.1;
+      let spinAmplitude = max(waveform);
+      return spinAmplitude > spinThreshold;
+    }
+
+    function checkCollision(spectrum) {
+      let collisionThreshold = 1500;
+      let collisionBand = fft.getEnergy(collisionThreshold);
+      return collisionBand > 100;
+    }
+  </script>
+</body>
+</html>
