@@ -26,7 +26,14 @@
   const ctx = canvas.getContext('2d');
   const mic = new p5.AudioIn();
   const fft = new p5.FFT();
-const audioWorklet = new AudioWorklet();
+  const audioWorklet = new AudioWorklet();
+  const audioWorkletGlobalScope = new AudioWorkletGlobalScope();
+  audioWorklet.addModule('path/to/worker.js');
+  audioWorklet.setGlobalScope(audioWorkletGlobalScope);
+  audioWorklet.addEventListener('ready', () => {
+    const audioWorkletNode = new AudioWorkletNode(audioContext, 'processor-name');
+  });
+
 
   mic.start();
 
