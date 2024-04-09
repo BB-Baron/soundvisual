@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEMI002 ベイバトル盛り上げアプリ - スペクトル表示</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      overflow: hidden;
+    }
+    #canvas {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <p id="message">マイクの使用許可が必要です。OKボタンをクリックして許可してください。</p>
+  <button id="start-button">OK</button>
+  <canvas id="canvas"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.sound/1.4.0/p5.sound.min.js"></script>
+  <script>
+    let mic, fft;
+    let canvasWidth, canvasHeight;
+    let spectrum;
+
+    async function setup() {
+      canvasWidth = window.innerWidth;
+      canvasHeight = window.innerHeight;
+      createCanvas(canvasWidth, canvasHeight);
+      noFill();
+      strokeWeight(1);
+
+      // Microphone initialization with permission request
+      mic = new p5.AudioIn();
+      try {
+        await mic.start();
+      } catch(err) {
+        // Handle permission denied error (optional)
+        console.error("Microphone access denied:", err);
+      }
+
+      // Now that mic is initialized, proceed with FFT setup
+      fft = new p5.FFT();
+
+      // Hide message after permission granted
+      document.getElementById("message").style.display = "none";
+    }
+
+    function draw() {
+      background(0);
+
+      // Rest of your code for spectrum analysis and drawing...
+    }
+  </script>
+</body>
+</html>
