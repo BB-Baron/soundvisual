@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイク入力音スペクトル表示</title>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+  const audioCtx = new AudioContext();
+  const analyser = audioCtx.createAnalyser();
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+    const source = audioCtx.createMediaStreamSource(stream);
+    source.connect(analyser);
+
+    const draw = () => {
+      const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(frequencyData);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < frequencyData.length; i++) {
+        const x = i * canvas.width / frequencyData.length;
+        const y = canvas.height - frequencyData[i];
+        ctx.fillStyle = `rgb(${255 - frequencyData[i]}, ${frequencyData[i]}, 0)`;
+        ctx.fillRect(x, y, 1, canvas.height - y);
+      }
+
+      requestAnimationFrame(draw);
+    };
+
+    draw();
+  });
+  </script>
+</body>
+</html>

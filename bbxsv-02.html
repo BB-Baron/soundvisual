@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>無題ドキュメント</title>
+</head>
+
+<body>
+<canvas id="canvas" width="500" height="200" style="border:1px solid #000000;"></canvas>
+<script>
+    var canvas = document.querySelector("#canvas");
+    var ctx = canvas.getContext("2d");
+
+    //様々なブラウザでマイクへのアクセス権を取得する
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+
+    //audioのみtrue
+    navigator.getUserMedia({
+        audio: true,
+        video: false
+    }, successFunc, errorFunc);
+
+    var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+
+    //FFT
+    var analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;    //取得するデータのサイズ(配列の大きさ)を決める
+
+    function successFunc(stream) {
+        //マイクから集音した音をFFTに入れる
+        var src = audioCtx.createMediaStreamSource(stream);
+        src.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        setInterval(draw, 500);
+        draw();
+    }
+
+    //取得した周波数データを描写する
+    function draw() {
+        var bufLen = analyser.frequencyBinCount;
+        var data = new Uint8Array(bufLen);
+        analyser.getByteFrequencyData(data);
+
+        /** 描写 **/
+        ctx.fillStyle = 'rgb(200, 200, 200)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgb(0, 0, 0)';
+
+        ctx.beginPath();
+
+        var sliceWidth = canvas.width * 1.0 / bufLen;
+        var x = 0;
+
+        for (var i = 0; i < bufLen; i++) {
+
+            var v = data[i] / 128.0;
+            var y = v * canvas.height / 2;
+
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+
+            x += sliceWidth;
+        }
+
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.stroke();
+    }
+
+    // Web Audio APIが使えなかった時
+    function errorFunc(error) {
+        alert("error");
+    }
+
+</script></body>
+</html>
