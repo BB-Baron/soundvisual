@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>COPI001音声スペクトル表示</title>
+</head>
+<body>
+    <script type="text/javascript">
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = "ja-JP";
+        recognition.onresult = (event) => {
+            if (event.results.length > 0) {
+                const transcript = event.results[0][0].transcript;
+                // ここで取得した音声データを高速フーリエ変換してスペクトルを表示する処理を追加します
+                console.log("音声認識結果:", transcript);
+            }
+        };
+        // マイクを有効にするためのボタンをクリックしたら音声認識を開始
+        document.querySelector("#startButton").addEventListener("click", () => {
+            recognition.start();
+        });
+    </script>
+    <button id="startButton">マイクを有効にする</button>
+</body>
+</html>
