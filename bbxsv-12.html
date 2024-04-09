@@ -26,6 +26,7 @@
   const ctx = canvas.getContext('2d');
   const mic = new p5.AudioIn();
   const fft = new p5.FFT();
+const audioWorklet = new AudioWorklet();
 
   mic.start();
 
