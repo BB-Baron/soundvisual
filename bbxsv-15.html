@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gem001 ベイバトル盛り上げアプリ - スペクトル表示</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      overflow: hidden;
+    }
+    #canvas {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <p id="message">マイクの使用許可が必要です。OKボタンをクリックして許可してください。</p>
+  <button id="start-button">OK</button>
+  <canvas id="canvas"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.sound/1.4.0/p5.sound.min.js"></script>
+  <script>
+    let mic, fft;
+    let canvasWidth, canvasHeight;
+    let spectrum;
+
+    function setup() {
+      canvasWidth = window.innerWidth;
+      canvasHeight = window.innerHeight;
+      createCanvas(canvasWidth, canvasHeight);
+      noFill();
+      strokeWeight(1);
+
+      // マイク入力の初期化
+      mic = new p5.AudioIn();
+      mic.start();
+
+      // 高速フーリエ変換の準備
+      fft = new p5.FFT();
+
+      // 最初のメッセージ非表示
+      document.getElementById("message").style.display = "none";
+    }
+
+    function draw() {
+      background(0);
+
+      // マイク入力からスペクトルを取得
+      spectrum = fft.analyze();
+
+      // スペクトルを描画
+      beginShape();
+      for (let i = 0; i < spectrum.length; i++) {
+        let x = map(i, 0, spectrum.length, 0, canvasWidth);
+        let y = map(spectrum[i], 0, 255, canvasHeight, 0);
+        vertex(x, y);
+      }
+      endShape();
+    }
+
+    function start() {
+      // マイクの使用許可
+      mic.getUserMedia(function() {
+        document.getElementById("start-button").style.display = "none";
+      });
+    }
+
+    document.getElementById("start-button").addEventListener("click", start);
+  </script>
+</body>
+</html>
