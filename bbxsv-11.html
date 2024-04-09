@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BARD01 ベイブレード対戦演出アプリ - フェイズ1</title>
+  <style>
+    body {
+      background-color: #000;
+      margin: 0;
+      overflow: hidden;
+    }
+    #canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/p5.min.js"></script>
+  <script>
+  const fftSize = 256;
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const mic = new p5.AudioIn();
+  const fft = new p5.FFT();
+
+  mic.start();
+
+  p5.draw = function () {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const spectrum = fft.analyze(mic.getLevel());
+    const maxAmp = Math.max(...spectrum);
+
+    for (let i = 0; i < spectrum.length; i++) {
+      const x = i * canvas.width / spectrum.length;
+      const y = canvas.height - (spectrum[i] / maxAmp) * canvas.height;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, canvas.height);
+      ctx.strokeStyle = `rgb(${255 - spectrum[i]}, ${spectrum[i]}, 0)`;
+      ctx.stroke();
+
+      // キリの良い周波数のラベル表示
+      if (i % 100 === 0) {
+        const freq = i * fft.sampleRate() / fftSize;
+        ctx.fillStyle = '#fff';
+        ctx.fillText(freq.toFixed(0) + ' Hz', x, y - 10);
+      }
+    }
+  };
+  </script>
+</body>
+</html>
