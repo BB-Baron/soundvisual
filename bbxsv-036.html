@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEMI修正　ベイバトル盛り上げアプリ - スペクトル表示と音量ラベル</title>
+  <style>
+    body {
+      background-color: #000;
+      margin: 0;
+      overflow: hidden;
+    }
+    #canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const audioCtx = new AudioContext();
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      const draw = () => {
+        const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(frequencyData);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // スペクトル描画 (白から黒へのグラデーション)
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, "#000");
+        gradient.addColorStop(1, "#000");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < frequencyData.length; i++) {
+          const x = i * canvas.width / frequencyData.length;
+          const y = canvas.height - frequencyData[i];
+          ctx.fillStyle = `rgba(255, 255, 255, ${frequencyData[i] / 255})`;
+          ctx.fillRect(x, y, 1, canvas.height - y);
+        }
+
+        // 縦線描画
+        ctx.strokeStyle = "#FF0000";
+        const labels = [50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200];
+        const labelWidth = canvas.width / labels.length;
+        for (let i = 0; i < labels.length; i++) {
+          const x = i * labelWidth;
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+
+        // ラベル描画
+        ctx.fillStyle = "#FFF";
+        ctx.textAlign = "center";
+        const labelMap = {
+          50: "A",
+          100: "B",
+          200: "C",
+          400: "D",
+          800: "E",
+          1600: "F",
+          3200: "G",
+          6400: "H",
+          12800: "I",
+          25600: "J",
+          51200: "K",
+        };
+        for (let i = 0; i < labels.length; i++) {
+          const x = i * labelWidth;
+          ctx.fillText(labelMap[labels[i]], x, canvas.height - 5);
+        }
+
+// 特定の周波数の音量ラベル表示
+const targetFrequencies = [250, 500, 1000, 2000, 4000];
+for (const frequency of targetFrequencies) {
+  const index = Math.floor(frequency / (analyser.sampleRate / 2) * analyser.frequencyBinCount);
+  const volume = frequencyData[index];
+  const label = `${volume} dB`;
+
+  // ラベル表示位置の計算
+  const x = (index / analyser.frequencyBinCount) * canvas.width;
+  const y = canvas.height - 20;
+
+  // ラベル描画
+  ctx.fillStyle = "#FFF";
+  ctx.fillText(label, x, y);
+}
+
+requestAnimationFrame(draw);
+      };
+
+      draw();
+    });
+  </script>
+</body>
+</html>
