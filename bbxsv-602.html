@@ -65,7 +65,7 @@
 
       // カウントダウンの開始
       countdownDiv.style.display = 'flex'; // カウントダウン表示を有効にする
-      countdownInterval = setInterval(updateCountdown, 1000);
+      countdownInterval = setInterval(updateCountdown, 1200);
     }
 
     function updateCountdown() {
@@ -78,7 +78,7 @@
         countdownDiv.style.animation = 'scale-down 0.2s forwards';
         setTimeout(() => {
           countdownDiv.style.animation = '';
-        }, 200);
+        }, 300);
       } else if (count === 0) {
         // 最後の文字を表示
         countdownDiv.innerText = 'Shoot!';
@@ -88,11 +88,12 @@
         countdownDiv.style.animation = 'scale-down 0.2s forwards';
         setTimeout(() => {
           countdownDiv.style.animation = '';
-        }, 200);
+        }, 300);
       } else {
         // カウントダウン終了
         clearInterval(countdownInterval);
         countdownDiv.style.display = 'none'; // カウントダウン表示を非表示にする
+		count = 3; //初期化
       }
     }
   </script>
