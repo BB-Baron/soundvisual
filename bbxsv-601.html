@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoot Countdown</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+    }
+
+    button {
+      font-size: 24px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    #countdown {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(255, 0, 0, 0.8);
+      color: white;
+      font-size: 72px;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="startCountdown()">Start Countdown</button>
+  <div id="countdown"></div>
+
+  <script>
+    let count = 3;
+    let countdownInterval;
+    let countdownDiv;
+
+    function startCountdown() {
+      // カウントダウン表示用のdivを取得
+      countdownDiv = document.getElementById('countdown');
+
+      // ボタンを非表示にする
+      document.querySelector('button').style.display = 'none';
+
+      // カウントダウンの開始
+      countdownDiv.style.display = 'flex'; // カウントダウン表示を有効にする
+      countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+    function updateCountdown() {
+      if (count > 0) {
+        // カウントダウンの数字を表示
+        countdownDiv.innerText = count;
+        count--;
+
+        // 数字のアニメーション
+        countdownDiv.style.animation = 'scale-down 0.2s forwards';
+        setTimeout(() => {
+          countdownDiv.style.animation = '';
+        }, 200);
+      } else if (count === 0) {
+        // 最後の文字を表示
+        countdownDiv.innerText = 'Shoot!';
+        count--;
+
+        // 文字のアニメーション
+        countdownDiv.style.animation = 'scale-down 0.2s forwards';
+        setTimeout(() => {
+          countdownDiv.style.animation = '';
+        }, 200);
+      } else {
+        // カウントダウン終了
+        clearInterval(countdownInterval);
+        countdownDiv.style.display = 'none'; // カウントダウン表示を非表示にする
+      }
+    }
+  </script>
+</body>
+</html>
