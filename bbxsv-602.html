@@ -23,7 +23,7 @@
     }
 
     #countdown {
-      display: none;
+      display: none; /* 初めは非表示にする */
       position: absolute;
       top: 0;
       left: 0;
@@ -47,8 +47,17 @@
     let countdownInterval;
     let countdownDiv;
 
+    // ページ読み込み時に実行
+    window.onload = function() {
+      document.addEventListener('keydown', function(event) {
+        if (event.code === 'Enter') {
+          startCountdown(); // Enter キーが押されたときにカウントダウンを開始
+        }
+      });
+    };
+
     function startCountdown() {
-      // カウントダウン表示用のdivを取得
+      // カウントダウン表示用の div を取得
       countdownDiv = document.getElementById('countdown');
 
       // ボタンを非表示にする
