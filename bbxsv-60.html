@@ -1,126 +1,86 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>GEMI修正　ベイバトル盛り上げアプリ - スペクトル表示と音量ラベル</title>
- <style>
-  body {
-   background-color: #000;
-   margin: 0;
-   overflow: hidden;
-  }
-  #canvas {
-   width: 100%;
-   height: 100%;
-  }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoot Countdown</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+    }
+
+    button {
+      font-size: 24px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    #countdown {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(255, 0, 0, 0.8);
+      color: white;
+      font-size: 72px;
+    }
+  </style>
 </head>
 <body>
- <canvas id="canvas"></canvas>
- <script>
-  const audioCtx = new AudioContext();
-  const analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 2048;
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
+  <button onclick="startCountdown()">Start Countdown</button>
+  <div id="countdown"></div>
 
-  navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-   const source = audioCtx.createMediaStreamSource(stream);
-   source.connect(analyser);
+  <script>
+    let count = 3;
+    let countdownInterval;
+    let countdownDiv;
 
-   const draw = () => {
-    const frequencyData = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(frequencyData);
+    function startCountdown() {
+      // カウントダウン表示用のdivを取得
+      countdownDiv = document.getElementById('countdown');
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // カウントダウンの開始
+      countdownInterval = setInterval(updateCountdown, 1000);
+    }
 
-    // スペクトル描画 (白から黒へのグラデーション)
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-    gradient.addColorStop(0, "#000");
-    gradient.addColorStop(1, "#000");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < frequencyData.length; i++) {
-     const x = i * canvas.width / frequencyData.length;
-     const y = canvas.height - frequencyData[i];
-     ctx.fillStyle = `rgba(255, 255, 255, ${frequencyData[i] / 255})`;
-     ctx.fillRect(x, y, 1, canvas.height - y);
-    }
+    function updateCountdown() {
+      if (count > 0) {
+        // カウントダウンの数字を表示
+        countdownDiv.innerText = count;
+        count--;
 
-    // 縦軸の目盛り描画
-    ctx.strokeStyle = "#AAA";
-    for (let i = 0; i < labels.length; i++) {
-     const y = canvas.height - (i * canvas.height / labels.length);
-     ctx.beginPath();
-     ctx.moveTo(0, y);
-     ctx.lineTo(5, y);
-     ctx.stroke();
-    }
+        // 数字のアニメーション
+        countdownDiv.style.animation = 'scale-down 0.2s forwards';
+        setTimeout(() => {
+          countdownDiv.style.animation = '';
+        }, 200);
+      } else if (count === 0) {
+        // 最後の文字を表示
+        countdownDiv.innerText = 'Shoot!';
+        count--;
 
-    // 縦軸のラベル描画
-    ctx.fillStyle = "#FFF";
-    ctx.textAlign = "right";
-    for (let i = 0; i < labels.length; i++) {
-     const y = canvas.height - (i * canvas.height / labels.length);
-     ctx.fillText(labels[i], 10, y);
-    }
-
-    // 縦線描画
-    ctx.strokeStyle = "#FF0000";
-    const labels = [50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200];
-    const labelWidth = canvas.width / labels.length;
-    for (let i = 0; i < labels.length; i++) {
-     const x = i * labelWidth;
-     ctx.beginPath();
-     ctx.moveTo(x, 0);
-     ctx.lineTo(x, canvas.height);
-     ctx.stroke();
-    }
-
-    // ラベル描画
-    ctx.fillStyle = "#FFF";
-    ctx.textAlign = "center";
-    const labelMap = {
-     50: "A",
-     100: "B",
-     200: "C",
-     400: "D",
-     800: "E",
-     1600: "F",
-     3200: "G",
-     6400: "H",
-     12800: "I",
-     25600: "J",
-     51200: "K",
-    };
-    for (let i = 0; i < labels.length; i++) {
-     const x = i * labelWidth;
-     ctx.fillText(labelMap[labels[i]], x, canvas.height - 5);
-    }
-
-// 特定の周波数の音量ラベル表示
-const targetFrequencies = [250, 500, 1000, 2000, 4000];
-for (const frequency of targetFrequencies) {
- const index = Math.floor(frequency / (analyser.sampleRate / 2) * analyser.frequencyBinCount);
- const volume = frequencyData[index];
- const label = `${volume} dB`;
-
- // ラベル表示位置の計算
- const x = canvas.width / 2 + (index / analyser.frequencyBinCount) * canvas.width - label.length * 5;
- const y = canvas.height - 20;
-
- // ラベル描画
- ctx.fillStyle = "#000"; // 文字色
- ctx.font = "16px Arial"; // フォントサイズ
- ctx.textAlign = "center";
- ctx.fillText(label, x, y);
-}
-requestAnimationFrame(draw);
-   };
-
-   draw();
-  });
- </script>
+        // 文字のアニメーション
+        countdownDiv.style.animation = 'scale-down 0.2s forwards';
+        setTimeout(() => {
+          countdownDiv.style.animation = '';
+        }, 200);
+      } else {
+        // カウントダウン終了
+        clearInterval(countdownInterval);
+        countdownDiv.style.display = 'none'; // カウントダウン表示を非表示にする
+      }
+    }
+  </script>
 </body>
 </html>
