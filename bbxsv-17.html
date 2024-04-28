@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>P5 SVtest02</title>
+  <title>P5 SVtest021</title>
     <!-- p5.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/addons/p5.sound.min.js"></script>
@@ -31,6 +31,33 @@ function setup() {
   // 図形の線の色を255(白)に設定
   stroke(255);
 }
+function draw() {
+  // 背景を0(黒)で塗りつぶす
+  background(0);
+  // スペクトラムを描画する関数を呼び出す
+  showSpectrum(fft);
+}
+
+function showSpectrum(fft) {
+  const spectrum = fft.analyze();
+
+  beginShape();
+  for (let i = 0; i < spectrum.length; i++) {
+    // map関数でiを0からspectrum.lengthの範囲から、0からwidthの範囲に置き換える
+    // x = i / (spectrum.length - 0) * (width - 0) と同義
+    // 詳細：https://p5js.org/reference/#/p5/map
+    const x = map(i, 0, spectrum.length, 0, width);
+
+    const amp = spectrum[i];
+    const y = map(amp, 0, 255, height / 2, 0);
+
+    // x, yの位置に頂点を打つ
+    vertex(x, y);
+  }
+  // beginShape()からendShape()の間で打たれた頂点は線で結ばれる
+  endShape();
+}
+
   </script>
 </head>
 <body>
