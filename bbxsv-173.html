@@ -52,7 +52,9 @@ function draw() {
   background(0);
   translate(width / 2, height / 2);
   // スペクトルの開始角と終了角を引数として渡す
-  showSpectrum(fft, -90, 90);
+  showSpectrum(fft, 0, -90);
+  showSpectrum(fft, 0, 90);
+  showSpectrum(fft, 270, -90);
   showSpectrum(fft, 270, 90);
 }
 
