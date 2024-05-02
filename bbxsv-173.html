@@ -42,6 +42,8 @@ function setup() {
   // fftを利用するための初期設定
   fft = new p5.FFT(0.9, 256);
   fft.setInput(mic);
+	
+  peakDetect = new p5.PeakDetect(20, 2000, 0.5, 10);
 
   // 図形の塗りつぶしを無効にする設定
   noFill();
