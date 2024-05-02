@@ -79,7 +79,7 @@ function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
   // 8000Hzのボリュームが特定の値以上なら星型を表示
   const energy8k = fft.getEnergy(8000);
   if (energy8k > vol8k) {
-    star(0, 0, 30, 70, 5);
+    star(0, 0, 20, 70, 5);
   }
 
   // 800Hz, 8000Hz, 15000Hzの位置に赤い放射線を描く
