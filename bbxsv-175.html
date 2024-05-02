@@ -59,7 +59,7 @@ function draw() {
 }
 
 function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
-  const spectrum = fft.webform();
+  const spectrum = fft.weveform();
   const colorScale = fft.getEnergy(500) / 255;
   const colors = [color(255, 255, 255), color(255, 255, 0), color(0, 255, 0), color(0, 0, 255), color(255, 0, 0)];
   const strokeColor = lerpColor(colors[Math.floor(colorScale)], colors[Math.ceil(colorScale)], colorScale % 0.1);
@@ -83,14 +83,14 @@ function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
   }
 
   // 800Hz, 8000Hz, 15000Hzの位置に赤い放射線を描く
-//  stroke(255, 0, 0);
-//  for (let freq of freqs) {
-//    const index = Math.round(map(freq, 0, 22050, 0, spectrum.length));
-//    const angle = map(index, 0, spectrum.length, radians(startAngle), radians(endAngle));
-//    const x = maxR * cos(angle);
-//    const y = maxR * sin(angle);
-//    line(0, 0, x, y);
-//  }
+  stroke(255, 0, 0);
+  for (let freq of freqs) {
+    const index = Math.round(map(freq, 0, 22050, 0, spectrum.length));
+    const angle = map(index, 0, spectrum.length, radians(startAngle), radians(endAngle));
+    const x = maxR * cos(angle);
+    const y = maxR * sin(angle);
+    line(0, 0, x, y);
+  }
 }
 // 星型を描画する関数
 function star(x, y, radius1, radius2, npoints) {
