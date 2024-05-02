@@ -73,7 +73,7 @@ function draw() {
   showSpectrum(fft, radius, radius+30, 180, 90);
 }
 
-function showSpectrum(fft, startAngle, endAngle) {
+function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
   const spectrum = fft.analyze();
 
   beginShape();
