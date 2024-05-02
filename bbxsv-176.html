@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    canvas {
+      position: absolute;
+      /*top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      */
+	  border: 1px solid black;
+    }
+  </style>
+  <title>P5 SVtest021</title>
+    <!-- p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/addons/p5.sound.min.js"></script>
+  <script>
+let mic, fft, peakDetect;
+let minRadius = 200;
+let radius = minRadius;
+let vol8k = 50; // 特定の値を設定
+let freqs = [800, 8000, 15000]; // 放射線を描く周波数
+let particles = []; // パーティクルを格納する配列
+
+function setup() {
+  let cnv = createCanvas(windowWidth, windowHeight);
+  cnv.mouseClicked(userStartAudio);
+  mic = new p5.AudioIn();
+  mic.start();
+  fft = new p5.FFT(0.9, 256);
+  fft.setInput(mic);
+  peakDetect = new p5.PeakDetect(20, 2000, 0.5, 10);
+  noFill();
+  stroke(255);
+}
+
+function draw() {
+  background(0);
+  translate(width / 2, height / 2);
+  peakDetect.update(fft);
+  if (peakDetect.isDetected) {
+    radius = 220;
+  } else {
+    radius -= 1;
+    radius = (radius > minRadius) ? radius : minRadius;
+  }
+  showSpectrum(fft, radius, radius+60, 0, -90);
+  showSpectrum(fft, radius, radius+60, 0, 90);
+  showSpectrum(fft, radius, radius+60, 180, 270);
+  showSpectrum(fft, radius, radius+60, 180, 90);
+
+  // パーティクルを更新・描画
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].display();
+    if (particles[i].isDead()) {
+      particles.splice(i, 1);
+    }
+  }
+}
+
+function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
+  const spectrum = fft.analyze();
+  const colorScale = fft.getEnergy(500) / 255;
+  const colors = [color(255, 255, 255), color(255, 255, 0), color(0, 255, 0), color(0, 0, 255), color(255, 0, 0)];
+  const strokeColor = lerpColor(colors[Math.floor(colorScale)], colors[Math.ceil(colorScale)], colorScale % 0.1);
+  stroke(strokeColor);
+
+  beginShape();
+  for (let i = 0; i < spectrum.length; i++) {
+    const angle = map(i, 0, spectrum.length, radians(startAngle), radians(endAngle));
+    const amp = spectrum[i];
+    const r = map(amp, 0, 255, minR, maxR);
+    const x = r * cos(angle);
+    const y = r * sin(angle);
+    vertex(x, y);
+  }
+  endShape();
+
+  // 8000Hzのボリュームが特定の値以上ならパーティクルを生成
+  const energy8k = fft.getEnergy(8000);
+  if (energy8k > vol8k) {
+    const numParticles = 10;
+    for (let i = 0; i < numParticles; i++) {
+      const angle = random(TWO_PI);
+      const x = (radius * 2 / 3) * cos(angle);
+      const y = (radius * 2 / 3) * sin(angle);
+      particles.push(new Particle(x, y));
+    }
+  }
+
+  // 800Hz, 8000Hz, 15000Hzの位置に赤い放射線を描く
+  stroke(255, 0, 0);
+  for (let freq of freqs) {
+    const index = Math.round(map(freq, 0, 22050, 0, spectrum.length));
+    const angle = map(index, 0, spectrum.length, radians(startAngle), radians(endAngle));
+    const x = maxR * cos(angle);
+    const y = maxR * sin(angle);
+    line(0, 0, x, y);
+  }
+}
+
+// パーティクルを定義するクラス
+class Particle {
+  constructor(x, y) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(random(-1, 1), random(-1, 1));
+    this.acc = createVector(0, 0);
+    this.lifespan = 255;
+  }
+
+  update() {
+    this.vel.add(this.acc);
+    this.pos.add(this.vel);
+    this.acc.mult(0);
+    this.lifespan -= 2;
+  }
+
+  display() {
+    stroke(255, this.lifespan);
+    strokeWeight(2);
+    fill(127, this.lifespan);
+    ellipse(this.pos.x, this.pos.y, 12, 12);
+  }
+
+  isDead() {
+    return this.lifespan < 0;
+  }
+}
+  </script>
+</head>
+<body>
+  <canvas></canvas>
+</body>
+</html>
