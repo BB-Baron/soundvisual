@@ -25,10 +25,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/addons/p5.sound.min.js"></script>
   <script>
 let mic, fft, peakDetect;
-let minRadius = 100;
+let minRadius = 200;
 let radius = minRadius;
 let vol8k = 50; // 特定の値を設定
-let freqs = [500, 800, 8000, 15000]; // 放射線を描く周波数
+let freqs = [800, 8000, 15000]; // 放射線を描く周波数
 
 function setup() {
   let cnv = createCanvas(windowWidth, windowHeight);
@@ -47,15 +47,15 @@ function draw() {
   translate(width / 2, height / 2);
   peakDetect.update(fft);
   if (peakDetect.isDetected) {
-    radius = 120;
+    radius = 220;
   } else {
     radius -= 1;
     radius = (radius > minRadius) ? radius : minRadius;
   }
-  showSpectrum(fft, radius, radius+20, 0, -90);
-  showSpectrum(fft, radius, radius+20, 0, 90);
-  showSpectrum(fft, radius, radius+20, 180, 270);
-  showSpectrum(fft, radius, radius+20, 180, 90);
+  showSpectrum(fft, radius, radius+60, 0, -90);
+  showSpectrum(fft, radius, radius+60, 0, 90);
+  showSpectrum(fft, radius, radius+60, 180, 270);
+  showSpectrum(fft, radius, radius+60, 180, 90);
 }
 
 function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
@@ -76,7 +76,13 @@ function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
   }
   endShape();
 
-  // 500Hz, 800Hz, 8000Hz, 15000Hzの位置に赤い放射線を描く
+  // 8000Hzのボリュームが特定の値以上なら星型を表示
+  const energy8k = fft.getEnergy(8000);
+  if (energy8k > vol8k) {
+    star(0, 0, 30, 70, 5);
+  }
+
+  // 800Hz, 8000Hz, 15000Hzの位置に赤い放射線を描く
   stroke(255, 0, 0);
   for (let freq of freqs) {
     const index = Math.round(map(freq, 0, 22050, 0, spectrum.length));
