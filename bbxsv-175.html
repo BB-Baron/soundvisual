@@ -62,7 +62,7 @@ function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
   const spectrum = fft.analyze();
   const colorScale = fft.getEnergy(500) / 255;
   const colors = [color(255, 255, 255), color(255, 255, 0), color(0, 255, 0), color(0, 0, 255), color(255, 0, 0)];
-  const strokeColor = lerpColor(colors[Math.floor(colorScale)], colors[Math.ceil(colorScale)], colorScale % 1);
+  const strokeColor = lerpColor(colors[Math.floor(colorScale)], colors[Math.ceil(colorScale)], colorScale % 0.1);
   stroke(strokeColor);
 
   beginShape();
