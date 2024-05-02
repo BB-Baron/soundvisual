@@ -69,8 +69,8 @@ function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
   for (let i = 0; i < spectrum.length; i++) {
     const angle = map(i, 0, spectrum.length, radians(startAngle), radians(endAngle));
     const amp = spectrum[i];
-    const logAmp = Math.log(amp);
-    const r = map(logAmp, 0, logMax, minR, maxR);
+    //const logAmp = Math.log(amp);
+    const r = map(amp, 0, logMax, minR, maxR);
     const x = r * cos(angle);
     const y = r * sin(angle);
     vertex(x, y);
