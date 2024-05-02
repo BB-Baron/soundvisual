@@ -24,7 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/addons/p5.sound.min.js"></script>
   <script>
 let mic, fft, peakDetect;
-let minRadius = 60;
+let minRadius = 100;
 let radius = minRadius;
 
 // 最初に実行される
@@ -58,7 +58,7 @@ function draw() {
   //ビート検出
   peakDetect.update(fft);
 	if ( peakDetect.isDetected ){
-		radius = 90;
+		radius = 120;
 	} else {
 		// ビート検出なしなら毎フレーム1小さく
 		radius -= 1;
@@ -67,10 +67,10 @@ function draw() {
 		
 	}
   // スペクトルの開始角と終了角を引数として渡す
-  showSpectrum(fft, radius, radius+30, 0, -90);
-  showSpectrum(fft, radius, radius+30, 0, 90);
-  showSpectrum(fft, radius, radius+30, 180, 270);
-  showSpectrum(fft, radius, radius+30, 180, 90);
+  showSpectrum(fft, radius, radius+20, 0, -90);
+  showSpectrum(fft, radius, radius+20, 0, 90);
+  showSpectrum(fft, radius, radius+20, 180, 270);
+  showSpectrum(fft, radius, radius+20, 180, 90);
 }
 
 function showSpectrum(fft, minR, maxR, startAngle, endAngle) {
