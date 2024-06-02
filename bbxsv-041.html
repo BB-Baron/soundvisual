@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Beyblade X Battle Arena</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/addons/p5.sound.min.js"></script>
+  <script>
+    let stadium;
+    let mic;
+    let fft;
+    let cubes = [];
+    let score = [0, 0];
+    let playerNames = ['Left', 'Right'];
+
+    function preload() {
+      // ここでカウントダウン動画や決まり手の動画をロードする
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight, WEBGL);
+
+      // スタジアムの設定
+      stadium = createGraphics(width * 0.8, height * 0.8);
+      stadium.strokeWeight(5);
+      stadium.stroke(255);
+
+      // マイクの設定
+      mic = new p5.AudioIn();
+      mic.start();
+      fft = new p5.FFT();
+
+      // 立方体の設定
+      for (let i = 0; i < 2; i++) {
+        cubes.push(new Cube(width / 2 + (i * width / 3 - width / 6), height / 2, 100));
+      }
+
+      // その他の設定
+      textAlign(CENTER, CENTER);
+      textSize(30);
+    }
+
+    function draw() {
+      background(0);
+      orbitControl();
+
+      // スタジアムの描画
+      push();
+      fill(255);
+      noStroke();
+      translate(-width / 2, -height / 2);
+      image(stadium, 0, 0);
+      pop();
+
+      // 音声解析
+      let spectrum = fft.analyze();
+      let vol = mic.getLevel();
+
+      // 立方体の回転
+      for (let i = 0; i < cubes.length; i++) {
+        cubes[i].rotate(vol);
+        cubes[i].display();
+      }
+
+      // 衝突検知
+      if (spectrum[2000] > 0.1) {
+        background(255);
+        setTimeout(resetBackground, 1000);
+        // ここで雷のエフェクトを描画する
+      }
+
+      // スコアの表示
+      push();
+      fill(255);
+      noStroke();
+      translate(-width / 2, -height / 2);
+      text(score[0], width / 4, height / 6);
+      text(playerNames[0], width / 4, height / 6 + 50);
+      text(score[1], width * 3 / 4, height / 6);
+      text(playerNames[1], width * 3 / 4, height / 6 + 50);
+      pop();
+
+      // その他のUI
+      // ここでリセットボタン、シュートボタン、設定ボタンを描画する
+    }
+
+    function resetBackground() {
+      background(0);
+    }
+
+    class Cube {
+      constructor(x, y, size) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.rotationX = 0;
+        this.rotationY = 0;
+      }
+
+      rotate(vol) {
+        this.rotationX += vol * 10 * (Math.random() > 0.5 ? 1 : -1);
+        this.rotationY += vol * 10 * (Math.random() > 0.5 ? 1 : -1);
+      }
+
+      display() {
+        push();
+        translate(this.x, this.y);
+        rotateX(this.rotationX);
+        rotateY(this.rotationY);
+        box(this.size);
+        pop();
+      }
+    }
+
+    function keyPressed() {
+      // ここでテンキーの入力を検知し、決まり手の動画を再生する
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+  </script>
+</body>
+</html>
