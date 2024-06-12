@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVX1 Beyblade Battle Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle, darkgray, black);
+}
+
+#scoreboard {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 2em;
+    color: white;
+}
+
+#left-score, #right-score {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#visualizer {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    </style>
+</head>
+<body>
+    <div id="scoreboard">
+        <div id="left-score">0</div>
+        <div id="right-score">0</div>
+    </div>
+    <div id="visualizer"></div>
+    <script src="p5.min.js"></script>
+    <script src="script43.js"></script>
+</body>
+</html>
